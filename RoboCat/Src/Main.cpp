@@ -53,17 +53,26 @@ int DoTCPClient()
 	if (clientSocket == nullptr) return 1;
 
 	clientSocket->SetNonBlockingMode(true);
-	SocketAddressPtr clientAddress = SocketAddressFactory::CreateIPv4FromString("127.0.0.1:8081");
+	std::cout << "Created Client Socket\n";
+
+	SocketAddressPtr clientAddress = SocketAddressFactory::CreateIPv4FromString("127.0.0.1");
 	if (clientAddress == nullptr) return 1;
 	
 	int result = 0;
 	result = clientSocket->Bind(*clientAddress);
 	if (result != 0) return 1;
 
-	std::cout << "Found Client Socket\n";
+	std::cout << "Bound Client Socket\n";
 
 	SocketAddressPtr serverAddress = SocketAddressFactory::CreateIPv4FromString("127.0.0.1:8080");
+
+	clientSocket->SetNonBlockingMode(false);
 	result = clientSocket->Connect(*serverAddress);
+	if (result != 0) return 1;
+	clientSocket->SetNonBlockingMode(true);
+
+	std::cout << "Connected to Server\n";
+
 	while (result < 0)
 	{
 		if (result != -WSAEWOULDBLOCK)
